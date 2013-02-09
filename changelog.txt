@@ -1,0 +1,48 @@
+Version 1.7
+    * change license to LGPL v3
+    * change plugin sign in hooks  
+    * code cleanup      
+
+
+
+Version 1.6
+    * fix default info-box text
+
+
+
+Version 1.5
+    * add compatibility with MyBB 1.6.5
+    * rewrite to OOP
+    * small fixes and optimalizations
+
+
+
+Version 1.4
+    * small fix in javascript
+    * add ajax compatibility
+
+
+
+Version 1.3
+    * add option to create link to first / last post
+    * add time limit thread / last post option
+    * small additional fix in js / hidden fields
+
+
+
+Version 1.2
+    * add loading indicator option
+    * add option to search in the same forum
+    * add option to get forum data
+    * move link data to templates
+    * move additional code to templates
+
+
+
+Version 1.1
+    * small fix in fulltext search mode
+
+
+
+Version 1.0
+    * first version
