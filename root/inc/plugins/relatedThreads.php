@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Related Threads plugin for MyBB.
- * Copyright (C) 2010-2013 Lukasz Tkacz <lukasamd@gmail.com>
+ * Copyright (C) Lukasz Tkacz <lukasamd@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -222,7 +222,7 @@ class relatedThreads
             }
         }
 
-        $sql = "SELECT tid, fid, subject
+        $sql = "SELECT tid, fid, subject, prefix
                 FROM " . TABLE_PREFIX . "threads
                 WHERE {$this->where} 
                 LIMIT " . $this->getConfig('Limit');
@@ -243,7 +243,15 @@ class relatedThreads
                 'subject' => stripslashes($row['subject']),
                 'link' => ($this->getConfig('LinkLastPost')) ? get_thread_link($row['tid'], 0, 'lastpost') : get_thread_link($row['tid']),
                 'fid' => $row['fid'],
+				'threadprefix' => '',
             );
+			
+			// Thread prefix
+			if($this->getConfig('ShowPrefixes') != 0 && $row['prefix'] != 0)
+			{
+				$threadprefix = build_prefixes($row['prefix']);
+				$threadsList[$row['tid']]['threadprefix'] = $threadprefix['displaystyle'].'&nbsp;';
+			}
         }
 
         // Get forums data

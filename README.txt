@@ -15,3 +15,5 @@ Admin can configure:
     * Display forum info
     * Display loading indicator during search progress
     * Delay from press last key to search
+	
+INFO: This plugin add link to author website (only for web spiders). If you do not want this, do not use plugin, or make donate and contact author.

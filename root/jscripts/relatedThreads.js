@@ -1,6 +1,6 @@
 /**
  * This file is part of Related Threads plugin for MyBB.
- * Copyright (C) 2010-2013 Lukasz Tkacz <lukasamd@gmail.com>
+ * Copyright (C) Lukasz Tkacz <lukasamd@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by

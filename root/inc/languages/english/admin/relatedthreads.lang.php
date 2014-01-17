@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Related Threads plugin for MyBB.
- * Copyright (C) 2010-2013 Lukasz Tkacz <lukasamd@gmail.com>
+ * Copyright (C) Lukasz Tkacz <lukasamd@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -78,3 +78,6 @@ $l['relatedThreadsForumGetDesc'] = 'Get similar thread-forum data from database,
 
 $l['relatedThreadsSpinner'] = 'Displaying the loading indicator';
 $l['relatedThreadsSpinnerDesc'] = 'Specifies whether the loading indicator will be shown during the search similar topics progress.';
+
+$l['relatedThreadsShowPrefixes'] = 'Display thread prefixes';
+$l['relatedThreadsShowPrefixesDesc'] = 'If enabled, plugin will show thread prefix before subject.';

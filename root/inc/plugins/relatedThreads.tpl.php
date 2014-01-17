@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Related Threads plugin for MyBB.
- * Copyright (C) 2010-2013 Lukasz Tkacz <lukasamd@gmail.com>
+ * Copyright (C) Lukasz Tkacz <lukasamd@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -50,7 +50,7 @@ class relatedThreadsActivator
         self::$tpl[] = array(
             "tid" => NULL,
             "title" => 'relatedThreads_withForum',
-            "template" => $db->escape_string('<a {$linkTarget}href="{$thread[\'link\']}">{$thread[\'subject\']}</a> (<a {$linkTarget}href="{$forum[\'link\']}">{$forum[\'name\']}</a>)'),
+            "template" => $db->escape_string('{$thread[\'threadprefix\']}<a {$linkTarget}href="{$thread[\'link\']}">{$thread[\'subject\']}</a> (<a {$linkTarget}href="{$forum[\'link\']}">{$forum[\'name\']}</a>)'),
             "sid" => "-1",
             "version" => "1.0",
             "dateline" => TIME_NOW,
@@ -60,7 +60,7 @@ class relatedThreadsActivator
         self::$tpl[] = array(
             "tid" => NULL,
             "title" => 'relatedThreads_withoutForum',
-            "template" => $db->escape_string('<a {$linkTarget}href="{$thread[\'link\']}">{$thread[\'subject\']}</a>'),
+            "template" => $db->escape_string('{$thread[\'threadprefix\']}<a {$linkTarget}href="{$thread[\'link\']}">{$thread[\'subject\']}</a>'),
             "sid" => "-1",
             "version" => "1.0",
             "dateline" => TIME_NOW,

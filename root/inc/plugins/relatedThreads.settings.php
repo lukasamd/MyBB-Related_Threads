@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Related Threads plugin for MyBB.
- * Copyright (C) 2010-2013 Lukasz Tkacz <lukasamd@gmail.com>
+ * Copyright (C) Lukasz Tkacz <lukasamd@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -142,6 +142,18 @@ class relatedThreadsInstaller
             'description' => $db->escape_string($lang->relatedThreadsForumOnlyDesc),
             'optionscode' => 'onoff',
             'value' => '0',
+            'disporder' => $disporder++,
+            'gid' => $gid
+        );
+        $db->insert_query('settings', $setting);
+		
+        $setting = array(
+            'sid' => 'NULL',
+            'name' => 'relatedThreadsShowPrefixes',
+            'title' => $db->escape_string($lang->relatedThreadsShowPrefixes),
+            'description' => $db->escape_string($lang->relatedThreadsShowPrefixesDesc),
+            'optionscode' => 'onoff',
+            'value' => '1',
             'disporder' => $disporder++,
             'gid' => $gid
         );
