@@ -39,13 +39,29 @@ class relatedThreadsActivator
 
         self::$tpl[] = array(
             "tid" => NULL,
-            "title" => 'relatedThreads_title',
+            "title" => 'relatedThreads_code',
             "template" => $db->escape_string('<strong>' . $lang->relatedThreadsName . '</strong>'),
             "sid" => "-1",
             "version" => "1.0",
             "dateline" => TIME_NOW,
         );
-
+        
+        self::$tpl[] = array(
+            "tid" => NULL,
+            "title" => 'relatedThreads_javascript',
+            "template" => $db->escape_string('
+<script type="text/javascript" src="jscripts/relatedThreads.js"></script>            
+<script type="text/javascript">
+<!--
+	var rTTimer = "{$mybb->settings[\'relatedThreadsTimer\']}";
+	var rTMinLength = "{$mybb->settings[\'relatedThreadsLength\']}";
+	var rTFid = "{$forum[\'fid\']}";
+// -->
+</script>'),
+            "sid" => "-1",
+            "version" => "1.0",
+            "dateline" => TIME_NOW,
+        );
 
         self::$tpl[] = array(
             "tid" => NULL,
@@ -65,6 +81,24 @@ class relatedThreadsActivator
             "version" => "1.0",
             "dateline" => TIME_NOW,
         );
+        
+        self::$tpl[] = array(
+            "tid" => NULL,
+            "title" => 'relatedThreads_list',
+            "template" => $db->escape_string('<ul class="relatedThreadsList">{$relatedThreads[\'list\']}</ul>'),
+            "sid" => "-1",
+            "version" => "1.0",
+            "dateline" => TIME_NOW,
+        );
+        
+        self::$tpl[] = array(
+            "tid" => NULL,
+            "title" => 'relatedThreads_listElement',
+            "template" => $db->escape_string('<li>{$relatedThreads[\'element\']}</li>'),
+            "sid" => "-1",
+            "version" => "1.0",
+            "dateline" => TIME_NOW,
+        );
     }
 
     public static function activate()
@@ -77,9 +111,9 @@ class relatedThreadsActivator
             $db->insert_query('templates', self::$tpl[$i]);
         }
         
-        find_replace_templatesets("newthread", '#<\/head>#', "<script type=\"text/javascript\" src=\"jscripts/relatedThreads.js\"></script>\n</head>");
-        find_replace_templatesets("newthread", '#{\$posticons}(\r?)\n#', "<tr id=\"relatedThreadsRow\" style=\"display:none;\"><td class=\"trow2\"></td><td class=\"trow2\" id=\"relatedThreads\">{\$relatedThreads}</td></tr>\n{\$posticons}\n");
-        find_replace_templatesets("newthread", '#name="subject"#', "name=\"subject\" onkeyup=\"return relatedThreads.init(this.value);\"");
+        find_replace_templatesets("newthread", '#' . preg_quote('</head>') . '#', "{\$relatedThreadsJavaScript}</head>");
+        find_replace_templatesets("newthread", '#' . preg_quote('{$posticons}') . '#', '<tr id="relatedThreadsRow" style="display:none;"><td class="trow2" valign="top"><strong>{$lang->relatedThreadsTitle}</strong></td><td class="trow2" id="relatedThreads">{$relatedThreads}</td></tr>{$posticons}');
+        find_replace_templatesets("newthread", '#' . preg_quote('name="subject"') . '#', 'name="subject" onkeyup="return relatedThreads.init(this.value);"');        
     }
 
     public static function deactivate()
@@ -93,9 +127,9 @@ class relatedThreadsActivator
         }
 
         include MYBB_ROOT . '/inc/adminfunctions_templates.php';
-        find_replace_templatesets("newthread", '#<script type="text/javascript" src="jscripts/relatedThreads.js"></script>(\r?)\n#', "", 0);
-        find_replace_templatesets("newthread", '#<tr id="relatedThreadsRow" style="display:none;"><td class="trow2"></td><td class="trow2" id="relatedThreads">{\$relatedThreads}</td></tr>(\r?)\n#', "", 0);
-        find_replace_templatesets("newthread", '#onkeyup="(.*?)" #', "", 0);
+        find_replace_templatesets("newthread", '#' . preg_quote('{$relatedThreadsJavaScript}') . '#', "", 0);
+        find_replace_templatesets("newthread", '#' . preg_quote('<tr id="relatedThreadsRow" style="display:none;"><td class="trow2" valign="top"><strong>{$lang->relatedThreadsTitle}</strong></td><td class="trow2" id="relatedThreads">{$relatedThreads}</td></tr>') . '#', "", 0);
+        find_replace_templatesets("newthread", '#' . preg_quote(' onkeyup="return relatedThreads.init(this.value);"') . '#', "", 0);      
     }
 
 }

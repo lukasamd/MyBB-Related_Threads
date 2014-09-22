@@ -22,17 +22,14 @@ $l['relatedThreadsName'] = 'Powiązane tematy';
 $l['relatedThreadsDesc'] = 'Ten plugin sprawdza podczas pisania tematu, czy nie istnieją już podobne wątki.';
 $l['relatedThreadsGroupDesc'] = 'Ustawienia dotyczące modyfikacji "Powiązane tematy"';
 
-$l['relatedThreadsTitleStatus'] = 'Wyświetlanie dodatkowego tekstu';
-$l['relatedThreadsTitleStatusDesc'] = 'Określa, czy dodatkowy tekst nad listą tematów powiązanych ma być wyświetlany.<br />Jeżeli chcesz dodać własny kod, edytuj szablon globalny "relatedThreads_title".';
+$l['relatedThreadsCodeStatus'] = 'Wyświetlanie dodatkowego tekstu';
+$l['relatedThreadsCodeStatusDesc'] = 'Określa, czy dodatkowy tekst nad listą tematów powiązanych ma być wyświetlany.<br />Jeżeli chcesz dodać własny kod, edytuj szablon globalny "relatedThreads_title".';
 
 $l['relatedThreadsLength'] = 'Minimalna długość frazy';
 $l['relatedThreadsLengthDesc'] = 'Określa minimalną długość tekstu dla której będą szukane powiązane tematy.';
 
 $l['relatedThreadsLimit'] = 'Limit powiązanych tematów';
 $l['relatedThreadsLimitDesc'] = 'Określa, jak wiele powiązanych tematów ma być wyświetlanych.';
-
-$l['relatedThreadsListClass'] = 'Klasa CSS dla listy tematów powiązanych';
-$l['relatedThreadsListClassDesc'] = 'Określa, jaką klasę CSS ma mieć lista wyświetlająca znalezione wyniki.';
 
 $l['relatedThreadsLinkLastPost'] = 'Linki do ostatnich postów';
 $l['relatedThreadsLinkLastPostDesc'] = 'Określa, czy linki mają kierować do ostatnich zamiast pierwszych postów w znalezionych tematach.';
@@ -75,9 +72,6 @@ $l['relatedThreadsTimeLimitMethodDesc'] = 'Określa, dla jakiego typu postu będ
 
 $l['relatedThreadsForumGet'] = 'Pobierz informacje o forum';
 $l['relatedThreadsForumGetDesc'] = 'Określa, czy mają zostać pobrane informacje o dziale, w których znaleziono podobny wątek np. w celu wyświetlenia jego nazwy.';
-
-$l['relatedThreadsSpinner'] = 'Wyświetlanie wskaźnika ładowania';
-$l['relatedThreadsSpinnerDesc'] = 'Określa, czy wskaźnik ładowania ma być pokazywany podczas pobierania podobnych tematów.';
 
 $l['relatedThreadsShowPrefixes'] = 'Wyświetlanie prefiksów tematów';
 $l['relatedThreadsShowPrefixesDesc'] = 'Jeśli włączone, obok nazwy tematu będzie wyświetlany również jego prefiks.';

@@ -53,9 +53,9 @@ class relatedThreadsInstaller
 
         $setting = array(
             'sid' => 'NULL',
-            'name' => 'relatedThreadsTitleStatus',
-            'title' => $db->escape_string($lang->relatedThreadsTitleStatus),
-            'description' => $db->escape_string($lang->relatedThreadsTitleStatusDesc),
+            'name' => 'relatedThreadsCodeStatus',
+            'title' => $db->escape_string($lang->relatedThreadsCodeStatus),
+            'description' => $db->escape_string($lang->relatedThreadsCodeStatusDesc),
             'optionscode' => 'onoff',
             'value' => '0',
             'disporder' => $disporder++,
@@ -82,18 +82,6 @@ class relatedThreadsInstaller
             'description' => $db->escape_string($lang->relatedThreadsLimitDesc),
             'optionscode' => 'text',
             'value' => '5',
-            'disporder' => $disporder++,
-            'gid' => $gid
-        );
-        $db->insert_query('settings', $setting);
-
-        $setting = array(
-            'sid' => 'NULL',
-            'name' => 'relatedThreadsListClass',
-            'title' => $db->escape_string($lang->relatedThreadsListClass),
-            'description' => $db->escape_string($lang->relatedThreadsListClassDesc),
-            'optionscode' => 'text',
-            'value' => 'relatedThreads',
             'disporder' => $disporder++,
             'gid' => $gid
         );
@@ -250,18 +238,8 @@ class relatedThreadsInstaller
             'gid' => $gid
         );
         $db->insert_query('settings', $setting);
-
-        $setting = array(
-            'sid' => 'NULL',
-            'name' => 'relatedThreadsSpinner',
-            'title' => $db->escape_string($lang->relatedThreadsSpinner),
-            'description' => $db->escape_string($lang->relatedThreadsSpinnerDesc),
-            'optionscode' => 'onoff',
-            'value' => '0',
-            'disporder' => $disporder++,
-            'gid' => $gid
-        );
-        $db->insert_query('settings', $setting);
+        
+        rebuild_settings();
     }
 
     public static function uninstall()
@@ -276,6 +254,8 @@ class relatedThreadsInstaller
             $db->delete_query('settings', "gid = '{$gid}'");
         }
         $db->delete_query('settinggroups', "gid = '{$gid}'");
+        
+        rebuild_settings();
     }
 
 }

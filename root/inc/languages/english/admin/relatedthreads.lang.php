@@ -22,17 +22,14 @@ $l['relatedThreadsName'] = 'Related Threads';
 $l['relatedThreadsDesc'] = 'This plugin checks to see if there are already similar threads when we write new topic (using AJAX).';
 $l['relatedThreadsGroupDesc'] = 'Settings for plugin "Related Threads"';
 
-$l['relatedThreadsTitleStatus'] = 'Display additional code';
-$l['relatedThreadsTitleStatusDesc'] = 'Specifies whether the additional code above the list of related topics will be displayed.<br />If you want add code, please edit "relatedThreads_title" global template.';
+$l['relatedThreadsCodeStatus'] = 'Display additional code';
+$l['relatedThreadsCodeStatusDesc'] = 'Specifies whether the additional code above the list of related topics will be displayed.<br />If you want add code, please edit "relatedThreads_title" global template.';
 
 $l['relatedThreadsLength'] = 'The minimum length of phrase';
 $l['relatedThreadsLengthDesc'] = 'Specifies the minimum length of text (and keywords) for which to search related topics.';
 
 $l['relatedThreadsLimit'] = 'Related topics limit';
 $l['relatedThreadsLimitDesc'] = 'Specifies how many related topics are displayed.';
-
-$l['relatedThreadsListClass'] = 'CSS class for a list of related topics';
-$l['relatedThreadsListClassDesc'] = 'Specifies a CSS class that will have a list that displays the results found.';
 
 $l['relatedThreadsLinkLastPost'] = 'Links to the last posts';
 $l['relatedThreadsLinkLastPostDesc'] = 'Specifies whether the link should lead to the last post rather than the first found in the topic.';
@@ -75,9 +72,6 @@ $l['relatedThreadsTimeLimitMethodDesc'] = 'Specifies which post age in topic wil
 
 $l['relatedThreadsForumGet'] = 'Get information about the forum';
 $l['relatedThreadsForumGetDesc'] = 'Get similar thread-forum data from database, for example, to display its name and link.';
-
-$l['relatedThreadsSpinner'] = 'Displaying the loading indicator';
-$l['relatedThreadsSpinnerDesc'] = 'Specifies whether the loading indicator will be shown during the search similar topics progress.';
 
 $l['relatedThreadsShowPrefixes'] = 'Display thread prefixes';
 $l['relatedThreadsShowPrefixesDesc'] = 'If enabled, plugin will show thread prefix before subject.';

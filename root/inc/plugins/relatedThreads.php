@@ -38,7 +38,7 @@ function relatedThreads_info()
 {
     global $lang;
 
-    $lang->load('relatedthreads');
+    $lang->load('relatedThreads');
     
     $lang->relatedThreadsDesc = '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float:right;">' .
         '<input type="hidden" name="cmd" value="_s-xclick">' . 
@@ -53,9 +53,8 @@ function relatedThreads_info()
         'website' => 'http://lukasztkacz.com',
         'author' => 'Lukasz "LukasAMD" Tkacz',
         'authorsite' => 'http://lukasztkacz.com',
-        'version' => '1.7',
-        'guid' => '20436825146f2d73a17303ab1de73b06',
-        'compatibility' => '16*'
+        'version' => '1.0.0',
+        'compatibility' => '18*'
     );
 }
 
@@ -67,8 +66,6 @@ function relatedThreads_install()
 {
     require_once('relatedThreads.settings.php');
     relatedThreadsInstaller::install();
-
-    rebuildsettings();
 }
 
 function relatedThreads_is_installed()
@@ -82,8 +79,6 @@ function relatedThreads_uninstall()
 {
     require_once('relatedThreads.settings.php');
     relatedThreadsInstaller::uninstall();
-
-    rebuildsettings();
 }
 
 /**
@@ -138,8 +133,9 @@ class relatedThreads
      */
     public function injectNewthread()
     {
-        global $mybb, $relatedThreads, $forum;
+        global $forum, $lang, $mybb, $relatedThreadsJavaScript, $templates;
 
+        $lang->load('relatedThreads');
         if ($this->getConfig('Timer') == 0)
         {
             $this->setConfig('Timer', '1000');
@@ -148,11 +144,8 @@ class relatedThreads
         {
             $this->setConfig('Length', '4');
         }
-
-        $relatedThreads = '<input id="rTTimer" name="rTTimer" type="hidden" value="' . $mybb->settings['relatedThreadsTimer'] . '" />';
-        $relatedThreads .= '<input id="rTMinLength" name="rTMinLength" type="hidden" value="' . $mybb->settings['relatedThreadsLength'] . '" />';
-        $relatedThreads .= '<input id="rTSpinner" name="rTSpinner" type="hidden" value="' . $mybb->settings['relatedThreadsSpinner'] . '" />';
-        $relatedThreads .= '<input id="rTFid" name="rTFid" type="hidden" value="' . $forum['fid'] . '" />';
+        
+        eval("\$relatedThreadsJavaScript = \"" . $templates->get("relatedThreads_javascript") . "\";");
     }
 
     /**
@@ -162,13 +155,12 @@ class relatedThreads
      */
     public function displayThreads()
     {
-        global $mybb, $db, $templates;
+        global $mybb, $db, $lang, $relatedThreads, $templates;
 
         if ($mybb->input['action'] != 'relatedThreads')
         {
             return;
         }
-
         header("Content-type: text/xml; charset=UTF-8");
 
         // Fix MyBB setting type 
@@ -276,30 +268,30 @@ class relatedThreads
         $linkTarget = ($this->getConfig('NewWindow')) ? 'target="_blank" ' : '';
 
         // Display additional code
-        if ($this->getConfig('TitleStatus'))
+        if ($this->getConfig('CodeStatus'))
         {
-            echo $templates->get("relatedThreads_title");
+            echo $templates->get("relatedThreads_code");
         }
 
-        echo '<ul class="' . stripslashes($this->getConfig('ListClass')) . '">';
+        // Display all elements
+        $relatedThreads['list'] = '';
         foreach ($threadsList as $thread)
         {
-            echo '<li>';
-
             if ($this->getConfig('ForumGet'))
             {
                 $forum['link'] = $forumsList[$thread['fid']]['link'];
                 $forum['name'] = $forumsList[$thread['fid']]['name'];
-                eval("\$thread['view'] = \"" . $templates->get("relatedThreads_withForum") . "\";");
+                eval("\$relatedThreads['element'] = \"" . $templates->get("relatedThreads_withForum") . "\";");
             }
             else
             {
-                eval("\$thread['view'] = \"" . $templates->get("relatedThreads_withoutForum") . "\";");
+                eval("\$relatedThreads['element'] = \"" . $templates->get("relatedThreads_withoutForum") . "\";");
             }
-            echo $thread['view'];
-            echo '</li>';
+
+            eval("\$relatedThreads['list'] .= \"" . $templates->get("relatedThreads_listElement") . "\";");
         }
-        echo '</ul>';
+        eval("\$relatedThreads['content'] = \"" . $templates->get("relatedThreads_list") . "\";");
+        echo $relatedThreads['content'];
     }
 
     /**
@@ -638,7 +630,7 @@ class relatedThreads
         }
 
         $db->update_query("settings", array("value" => $db->escape_string($val)), "name = 'relatedThreads" . $db->escape_string($name) . "'");
-        rebuildsettings();
+        rebuild_settings();
     }
     
     /**

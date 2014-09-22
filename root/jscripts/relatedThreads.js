@@ -17,12 +17,7 @@
  *
  */ 
 
-var rTTimer = 0; 
-var rTTimeout = 0;
-var rTMinLength = 0;
-var rTSpinnerStatus = -1;
-var rTSpinner = '';
-var rTFid = 0;
+var rTTimeout = 0;              
 
 var relatedThreads = 
 {
@@ -30,22 +25,18 @@ var relatedThreads =
     {
         if (rTTimer == 0)
         {
-            rTTimer = $('rTTimer').value;
+            rTTimer = $('#rTTimer').val();
         }
         if (rTMinLength == 0)
         {
-            rTMinLength = $('rTMinLength').value; 
-        }
-        if (rTSpinnerStatus == -1)
-        {
-            rTSpinnerStatus = $('rTSpinner').value; 
+            rTMinLength = $('#rTMinLength').val(); 
         }
         
         if (subject.length >= rTMinLength)
         {
             if (rTFid == 0)
             {
-                rTFid = $('rTFid').value; 
+                rTFid = $('#rTFid').val(); 
             }
           
             clearTimeout(rTTimeout);
@@ -57,18 +48,24 @@ var relatedThreads =
   
 	refresh: function(subject, fid)
 	{
-        if (rTSpinnerStatus == 1)
-        {
-            rTSpinner = new ActivityIndicator("body", {image: "images/spinner_big.gif"});
-        }
-        
-        new Ajax.Request('xmlhttp.php?action=relatedThreads&subject=' + subject + '&fid=' + fid, 
-        {
-            method: 'get',
-            onComplete: function(request) { relatedThreads.display(request); }
-        });
-        
-        return false;
+		if(use_xmlhttprequest == 1)
+		{
+			$.ajax(
+			{
+				url: 'xmlhttp.php?action=relatedThreads&subject=' + subject + '&fid=' + fid,
+				type: 'get',
+				complete: function (request, status)
+				{
+					relatedThreads.display(request);
+				}
+			});
+
+			return false;
+		}
+		else
+		{
+			return true;
+		}
     },
 
 
@@ -76,20 +73,14 @@ var relatedThreads =
     {
         if (request.responseText != "")
         {
-            $('relatedThreadsRow').style.display = "table-row";
-            $('relatedThreads').innerHTML = request.responseText;         
+            $('#relatedThreadsRow').css("display", "table-row");
+            $('#relatedThreads').html(request.responseText);         
         } 
         else 
         {
-            $('relatedThreadsRow').style.display = "none";
-            $('relatedThreads').innerHTML = "";
+            $('#relatedThreadsRow').css("display", "none");
+            $('#relatedThreads').html("");
         } 
-        
-        if (rTSpinnerStatus == 1)
-        {
-            rTSpinner.destroy();
-            rTSpinner = ''; 
-        }
     }
 };
             

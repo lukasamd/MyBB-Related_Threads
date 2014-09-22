@@ -1,3 +1,11 @@
+Version 1.0.0
+    * add compatibility with MyBB 1.8
+    * rewrite templates (no tpl in PHP code)
+    * remove css class (now user can edit template)
+    * remove indicator option                  
+
+
+
 Version 1.8
     * add prefixes support 
     * code cleanup      
