@@ -53,7 +53,7 @@ function relatedThreads_info()
         'website' => 'http://lukasztkacz.com',
         'author' => 'Lukasz "LukasAMD" Tkacz',
         'authorsite' => 'http://lukasztkacz.com',
-        'version' => '1.0.0',
+        'version' => '1.0.1',
         'compatibility' => '18*'
     );
 }
