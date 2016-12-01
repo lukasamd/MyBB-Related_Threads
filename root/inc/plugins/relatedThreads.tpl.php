@@ -38,7 +38,7 @@ class relatedThreadsActivator
         global $db, $lang;
 
         self::$tpl[] = array(
-            "tid" => NULL,
+//            "tid" => NULL,
             "title" => 'relatedThreads_code',
             "template" => $db->escape_string('<strong>' . $lang->relatedThreadsName . '</strong>'),
             "sid" => "-1",
@@ -47,7 +47,7 @@ class relatedThreadsActivator
         );
         
         self::$tpl[] = array(
-            "tid" => NULL,
+//            "tid" => NULL,
             "title" => 'relatedThreads_javascript',
             "template" => $db->escape_string('
 <script type="text/javascript" src="jscripts/relatedThreads.js"></script>            
@@ -64,7 +64,7 @@ class relatedThreadsActivator
         );
 
         self::$tpl[] = array(
-            "tid" => NULL,
+//            "tid" => NULL,
             "title" => 'relatedThreads_withForum',
             "template" => $db->escape_string('{$thread[\'threadprefix\']}<a {$linkTarget}href="{$thread[\'link\']}">{$thread[\'subject\']}</a> (<a {$linkTarget}href="{$forum[\'link\']}">{$forum[\'name\']}</a>)'),
             "sid" => "-1",
@@ -74,7 +74,7 @@ class relatedThreadsActivator
 
 
         self::$tpl[] = array(
-            "tid" => NULL,
+//            "tid" => NULL,
             "title" => 'relatedThreads_withoutForum',
             "template" => $db->escape_string('{$thread[\'threadprefix\']}<a {$linkTarget}href="{$thread[\'link\']}">{$thread[\'subject\']}</a>'),
             "sid" => "-1",
@@ -83,7 +83,7 @@ class relatedThreadsActivator
         );
         
         self::$tpl[] = array(
-            "tid" => NULL,
+//            "tid" => NULL,
             "title" => 'relatedThreads_list',
             "template" => $db->escape_string('<ul class="relatedThreadsList">{$relatedThreads[\'list\']}</ul>'),
             "sid" => "-1",
@@ -92,7 +92,7 @@ class relatedThreadsActivator
         );
         
         self::$tpl[] = array(
-            "tid" => NULL,
+//            "tid" => NULL,
             "title" => 'relatedThreads_listElement',
             "template" => $db->escape_string('<li>{$relatedThreads[\'element\']}</li>'),
             "sid" => "-1",
