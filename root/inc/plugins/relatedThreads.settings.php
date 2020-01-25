@@ -41,7 +41,7 @@ class relatedThreadsInstaller
         $disporder = 1;
 
         $settings_group = array(
-            'gid' => 'NULL',
+//            'gid' => 'NULL',
             'name' => 'relatedThreads',
             'title' => $db->escape_string($lang->relatedThreadsName),
             'description' => $db->escape_string($lang->relatedThreadsGroupDesc),
@@ -52,7 +52,7 @@ class relatedThreadsInstaller
         $gid = (int) $db->insert_id();
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsCodeStatus',
             'title' => $db->escape_string($lang->relatedThreadsCodeStatus),
             'description' => $db->escape_string($lang->relatedThreadsCodeStatusDesc),
@@ -64,7 +64,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsLength',
             'title' => $db->escape_string($lang->relatedThreadsLength),
             'description' => $db->escape_string($lang->relatedThreadsLengthDesc),
@@ -76,7 +76,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsLimit',
             'title' => $db->escape_string($lang->relatedThreadsLimit),
             'description' => $db->escape_string($lang->relatedThreadsLimitDesc),
@@ -88,7 +88,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsLinkLastPost',
             'title' => $db->escape_string($lang->relatedThreadsLinkLastPost),
             'description' => $db->escape_string($lang->relatedThreadsLinkLastPostDesc),
@@ -100,7 +100,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsNewWindow',
             'title' => $db->escape_string($lang->relatedThreadsNewWindow),
             'description' => $db->escape_string($lang->relatedThreadsNewWindowDesc),
@@ -112,7 +112,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsFulltext',
             'title' => $db->escape_string($lang->relatedThreadsFulltext),
             'description' => $db->escape_string($lang->relatedThreadsFulltextDesc),
@@ -124,7 +124,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsForumOnly',
             'title' => $db->escape_string($lang->relatedThreadsForumOnly),
             'description' => $db->escape_string($lang->relatedThreadsForumOnlyDesc),
@@ -136,7 +136,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 		
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsShowPrefixes',
             'title' => $db->escape_string($lang->relatedThreadsShowPrefixes),
             'description' => $db->escape_string($lang->relatedThreadsShowPrefixesDesc),
@@ -154,7 +154,7 @@ class relatedThreadsInstaller
         $options .= 'm=' . $lang->relatedThreadsTimeOptionMonths . '\n';
         $options .= 'y=' . $lang->relatedThreadsTimeOptionYears;
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsTimeLimitSelect',
             'title' => $db->escape_string($lang->relatedThreadsTimeLimitSelect),
             'description' => $db->escape_string($lang->relatedThreadsTimeLimitSelectDesc),
@@ -166,7 +166,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsTimeLimit',
             'title' => $db->escape_string($lang->relatedThreadsTimeLimit),
             'description' => $db->escape_string($lang->relatedThreadsTimeLimitDesc),
@@ -180,7 +180,7 @@ class relatedThreadsInstaller
         $options = 'select\nfirstPost=' . $lang->relatedThreadsTimeOptionFirstPost . '\n';
         $options .= 'lastPost=' . $lang->relatedThreadsTimeOptionLastPost;
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsTimeLimitMethod',
             'title' => $db->escape_string($lang->relatedThreadsTimeLimitMethod),
             'description' => $db->escape_string($lang->relatedThreadsTimeLimitMethodDesc),
@@ -192,7 +192,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsForumGet',
             'title' => $db->escape_string($lang->relatedThreadsForumGet),
             'description' => $db->escape_string($lang->relatedThreadsForumGetDesc),
@@ -204,7 +204,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsExceptions',
             'title' => $db->escape_string($lang->relatedThreadsExceptions),
             'description' => $db->escape_string($lang->relatedThreadsExceptionsDesc),
@@ -216,7 +216,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsBadWords',
             'title' => $db->escape_string($lang->relatedThreadsBadWords),
             'description' => $db->escape_string($lang->relatedThreadsBadWordsDesc),
@@ -228,7 +228,7 @@ class relatedThreadsInstaller
         $db->insert_query('settings', $setting);
 
         $setting = array(
-            'sid' => 'NULL',
+//            'sid' => 'NULL',
             'name' => 'relatedThreadsTimer',
             'title' => $db->escape_string($lang->relatedThreadsTimer),
             'description' => $db->escape_string($lang->relatedThreadsTimerDesc),
