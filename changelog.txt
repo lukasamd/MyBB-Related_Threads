@@ -1,3 +1,11 @@
+Version 2.0.0
+    * Fix thread subject XSS in AJAX related thread results
+    * Replace create_function() hooks for PHP 8 compatibility
+    * Modernize JavaScript debounce and AJAX parameter handling
+    * Remove spider-only author link injection
+    * Fix permission filtering and PHP 8 undefined input/cookie warnings
+    * Clean up template activation and installer auto-increment values
+
 Version 1.0.1
     * fix lang filename               
 

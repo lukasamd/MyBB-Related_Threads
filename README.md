@@ -1,13 +1,9 @@
-# Plugin is abandoned
-I decided to stop developling MyBB addons. You can find details here:
-https://github.com/lukasamd/MyBB-View_Unread_posts/issues/25
-
----
-
+# Related Threads for MyBB
 
 This plugin checks to see if there are already similar threads when we write new topic (using AJAX). 
 If yes, we can simply check them.
 
+Version 2.x targets current MyBB 1.8.x installations and PHP 8.x. It fixes the reported thread subject XSS issue and removes the legacy spider-only author link injection.
 
 Admin can configure:
 - Additional (X)HTML code before related threads list (in global template)
@@ -21,5 +17,3 @@ Admin can configure:
 - Display forum info
 - Delay from press last key to search
 - Change all plugin templates    
-	
-INFO: This plugin add link to author website (only for web spiders). If you do not want this, do not use plugin, or make donate and contact author.

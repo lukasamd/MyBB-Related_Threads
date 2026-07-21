@@ -17,55 +17,58 @@
  *
  */ 
 
-var rTTimeout = 0;              
-
-var relatedThreads = 
+var relatedThreads =
 {
+    timeout: 0,
+    config: {
+        timer: 1000,
+        minLength: 4,
+        fid: 0
+    },
+
     init: function(subject)
     {
-        if (rTTimer == 0)
+        if (subject.length >= relatedThreads.config.minLength)
         {
-            rTTimer = $('#rTTimer').val();
+            clearTimeout(relatedThreads.timeout);
+            relatedThreads.timeout = setTimeout(function() {
+                relatedThreads.refresh(subject, relatedThreads.config.fid);
+            }, relatedThreads.config.timer);
         }
-        if (rTMinLength == 0)
+        else
         {
-            rTMinLength = $('#rTMinLength').val(); 
-        }
-        
-        if (subject.length >= rTMinLength)
-        {
-            if (rTFid == 0)
-            {
-                rTFid = $('#rTFid').val(); 
-            }
-          
-            clearTimeout(rTTimeout);
-            rTTimeout = setTimeout("relatedThreads.refresh('" + subject + "', '" + rTFid + "')", rTTimer);
+            clearTimeout(relatedThreads.timeout);
+            relatedThreads.display({responseText: ''});
         }
         return false;
     },
-  
-  
-	refresh: function(subject, fid)
-	{
-		if(use_xmlhttprequest == 1)
-		{
-			$.ajax(
-			{
-				url: 'xmlhttp.php?action=relatedThreads&subject=' + subject + '&fid=' + fid,
-				type: 'get',
-				complete: function (request, status)
-				{
-					relatedThreads.display(request);
-				}
-			});
 
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+
+    refresh: function(subject, fid)
+    {
+        if(use_xmlhttprequest == 1)
+        {
+            $.ajax(
+            {
+                url: 'xmlhttp.php',
+                type: 'get',
+                data: {
+                    action: 'relatedThreads',
+                    subject: subject,
+                    fid: fid
+                },
+                complete: function(request)
+                {
+                    relatedThreads.display(request);
+                }
+            });
+
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     },
 
 
@@ -83,4 +86,11 @@ var relatedThreads =
         } 
     }
 };
-            
+
+$(document).ready(function()
+{
+    $('input[name="subject"]').on('keyup input', function()
+    {
+        relatedThreads.init(this.value);
+    });
+});

@@ -32,6 +32,12 @@ INSTALLATION:
 
 2. Go to ACP -> Plugins and activate "Related Threads" plugin
 
-3. Optionally, change the settings in APC -> Configuration -> Related Threads
+3. Optionally, change the settings in ACP -> Configuration -> Related Threads
 
 4. To increase the efficiency, use full-text search mode
+
+UPGRADE FROM 1.x:
+
+Version 2.x fixes the reported thread subject XSS issue and removes old PHP code
+that is not compatible with PHP 8. Deactivate and activate the plugin to refresh
+the modified new thread template.

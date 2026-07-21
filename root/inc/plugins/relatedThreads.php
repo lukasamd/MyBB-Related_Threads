@@ -24,11 +24,8 @@
  */
 if (!defined("IN_MYBB")) exit;
 
-/**
- * Create plugin object
- * 
- */
-$plugins->objects['relatedThreads'] = new relatedThreads();
+$plugins->add_hook('xmlhttp', ['relatedThreads', 'displayThreads']);
+$plugins->add_hook('newthread_start', ['relatedThreads', 'injectNewthread']);
 
 /**
  * Standard MyBB info function
@@ -47,15 +44,15 @@ function relatedThreads_info()
         '<img alt="" border="0" src="https://www.paypalobjects.com/pl_PL/i/scr/pixel.gif" width="1" height="1">' .
         '</form>' . $lang->relatedThreadsDesc;
 
-    return Array(
+    return [
         'name' => $lang->relatedThreadsName,
         'description' => $lang->relatedThreadsDesc,
         'website' => 'http://lukasztkacz.com',
         'author' => 'Lukasz "LukasAMD" Tkacz',
         'authorsite' => 'http://lukasztkacz.com',
-        'version' => '1.0.1',
+        'version' => '2.0.0',
         'compatibility' => '18*'
-    );
+    ];
 }
 
 /**
@@ -112,39 +109,37 @@ class relatedThreads
 {
 
     // Where statement for sql
-    private $where = '';
-     
-    /**
-     * Constructor - add plugin hooks
-     */
-    public function __construct()
-    {
-        global $plugins;
+    private static $where = '';
 
-        $plugins->hooks["xmlhttp"][10]["relatedThreads_displayThreads"] = array("function" => create_function('','global $plugins; $plugins->objects[\'relatedThreads\']->displayThreads();')); 
-        $plugins->hooks["newthread_start"][10]["relatedThreads_injectNewthread"] = array("function" => create_function('','global $plugins; $plugins->objects[\'relatedThreads\']->injectNewthread();')); 
-        $plugins->hooks["pre_output_page"][10]["relatedThreads_pluginThanks"] = array("function" => create_function('&$arg', 'global $plugins; $plugins->objects[\'relatedThreads\']->pluginThanks($arg);'));
-    }
+    private static $defaults = [
+        'CodeStatus' => '0',
+        'Length' => '4',
+        'Limit' => '5',
+        'LinkLastPost' => '0',
+        'NewWindow' => '1',
+        'Fulltext' => '0',
+        'ForumOnly' => '0',
+        'ShowPrefixes' => '1',
+        'TimeLimitSelect' => '0',
+        'TimeLimit' => '0',
+        'TimeLimitMethod' => 'firstPost',
+        'ForumGet' => '0',
+        'Exceptions' => '',
+        'BadWords' => '',
+        'Timer' => '1000',
+    ];
 
     /**
      * Inject hidden fields for javascript code in newthread template.
      * 
      * @return bool False.
      */
-    public function injectNewthread()
+    public static function injectNewthread()
     {
-        global $forum, $lang, $mybb, $relatedThreadsJavaScript, $templates;
+        global $forum, $lang, $mybb, $relatedThreads, $relatedThreadsJavaScript, $templates;
 
         $lang->load('relatedThreads');
-        if ($this->getConfig('Timer') == 0)
-        {
-            $this->setConfig('Timer', '1000');
-        }
-        if ($this->getConfig('Length') == 0)
-        {
-            $this->setConfig('Length', '4');
-        }
-        
+        $relatedThreads = '';
         eval("\$relatedThreadsJavaScript = \"" . $templates->get("relatedThreads_javascript") . "\";");
     }
 
@@ -153,53 +148,44 @@ class relatedThreads
      * 
      * @return bool False if there are not related threads or string if there are.
      */
-    public function displayThreads()
+    public static function displayThreads()
     {
         global $mybb, $db, $lang, $relatedThreads, $templates;
 
-        if ($mybb->input['action'] != 'relatedThreads')
+        if ($mybb->get_input('action') !== 'relatedThreads')
         {
             return;
         }
-        header("Content-type: text/xml; charset=UTF-8");
+        header("Content-type: text/html; charset=UTF-8");
 
-        // Fix MyBB setting type 
-        if ($this->getConfig('Length') == 0)
-        {
-            $this->setConfig('Length', '4');
-        }
-
-        $userSubject = trim($mybb->input['subject']);
-        if (!$mybb->user['uid'] || my_strlen($userSubject) < $this->getConfig('Length'))
+        $minLength = self::getPositiveIntConfig('Length', 4, 1, 85);
+        $userSubject = trim($mybb->get_input('subject'));
+        if (empty($mybb->user['uid']) || my_strlen($userSubject) < $minLength)
         {
             return;
         }
 
-        // Fix MyBB setting type 
-        if ($this->getConfig('Limit') == 0)
-        {
-            $this->setConfig('Limit', '5');
-        }
+        $limit = self::getPositiveIntConfig('Limit', 5, 1, 50);
 
         // Prepare sql statements
-        $this->where = '';
-        $this->getStandardWhere();
-        $this->getForumCheck();
-        $this->getExceptions();
-        $this->getTimeLimit();
-        $this->getPermissions();
-        $this->getUnsearchableForums();
-        $this->getInactiveForums();
+        self::$where = '';
+        self::getStandardWhere();
+        self::getForumCheck();
+        self::getExceptions();
+        self::getTimeLimit();
+        self::getPermissions();
+        self::getUnsearchableForums();
+        self::getInactiveForums();
 
         // Use fulltext search index...
-        if ($this->getConfig('Fulltext') && $db->supports_fulltext("threads"))
+        if (self::getConfig('Fulltext') && $db->supports_fulltext("threads") && $db->is_fulltext("threads", "subject"))
         {
-            $this->where .= " AND MATCH(subject) AGAINST('" . $db->escape_string($userSubject) . "') ";
+            self::$where .= " AND MATCH(t.subject) AGAINST('" . $db->escape_string($userSubject) . "') ";
         }
         // ...or build LIKE query
         else
         {
-            $keywords = $this->getKeywords($userSubject);
+            $keywords = self::getKeywords($userSubject);
             $countKeywords = count($keywords);
 
             if (!$countKeywords)
@@ -207,17 +193,19 @@ class relatedThreads
                 return;
             }
 
-            $this->where .= " AND subject LIKE '%" . $db->escape_string($keywords[0]) . "%' ";
-            for ($i = 1; $i < $countKeywords; $i++)
+            $likes = [];
+            foreach ($keywords as $keyword)
             {
-                $this->where .= "OR subject LIKE '%" . $db->escape_string($keywords[$i]) . "%' ";
+                $likes[] = "t.subject LIKE '%" . $db->escape_string_like($keyword) . "%'";
             }
+
+            self::$where .= " AND (" . implode(' OR ', $likes) . ") ";
         }
 
         $sql = "SELECT tid, fid, subject, prefix
-                FROM " . TABLE_PREFIX . "threads
-                WHERE {$this->where} 
-                LIMIT " . $this->getConfig('Limit');
+                FROM " . TABLE_PREFIX . "threads t
+                WHERE " . self::$where . "
+                LIMIT " . $limit;
         $result = $db->query($sql);
         
         if (!$db->num_rows($result))
@@ -225,50 +213,57 @@ class relatedThreads
             return;
         }
 
-        $tids = array();
-        $threadsList = array();
+        $fids = [];
+        $threadsList = [];
         while ($row = $db->fetch_array($result))
         {
-            $tids[] = $row['fid'];
+            $fid = (int)$row['fid'];
+            $tid = (int)$row['tid'];
+            $fids[] = $fid;
 
-            $threadsList[$row['tid']] = array(
-                'subject' => stripslashes($row['subject']),
-                'link' => ($this->getConfig('LinkLastPost')) ? get_thread_link($row['tid'], 0, 'lastpost') : get_thread_link($row['tid']),
-                'fid' => $row['fid'],
-				'threadprefix' => '',
-            );
-			
-			// Thread prefix
-			if($this->getConfig('ShowPrefixes') != 0 && $row['prefix'] != 0)
-			{
-				$threadprefix = build_prefixes($row['prefix']);
-				$threadsList[$row['tid']]['threadprefix'] = $threadprefix['displaystyle'].'&nbsp;';
-			}
+            $threadsList[$tid] = [
+                'subject' => htmlspecialchars_uni($row['subject']),
+                'link' => htmlspecialchars_uni((self::getConfig('LinkLastPost')) ? get_thread_link($tid, 0, 'lastpost') : get_thread_link($tid)),
+                'fid' => $fid,
+                'threadprefix' => '',
+            ];
+
+            // Thread prefix
+            if(self::getConfig('ShowPrefixes') != 0 && $row['prefix'] != 0)
+            {
+                $threadprefix = build_prefixes($row['prefix']);
+                $threadsList[$tid]['threadprefix'] = $threadprefix['displaystyle'].'&nbsp;';
+            }
         }
 
         // Get forums data
-        if ($this->getConfig('ForumGet'))
+        $forumsList = [];
+        if (self::getConfig('ForumGet'))
         {
-            $forumsList = array();
+            $fids = array_unique(array_map('intval', $fids));
+            if (empty($fids))
+            {
+                return;
+            }
 
             $sql = "SELECT name, fid
-                    FROM " . TABLE_PREFIX . "forums 
-                    WHERE fid IN (" . implode(',', $tids) . ")";
+                    FROM " . TABLE_PREFIX . "forums
+                    WHERE fid IN (" . implode(',', $fids) . ")";
             $result = $db->query($sql);
             while ($row = $db->fetch_array($result))
             {
-                $forumsList[$row['fid']] = array(
-                    'name' => stripslashes($row['name']),
-                    'link' => get_forum_link($row['fid']),
-                );
+                $forumsList[(int)$row['fid']] = [
+                    'name' => htmlspecialchars_uni(strip_tags($row['name'])),
+                    'link' => htmlspecialchars_uni(get_forum_link($row['fid'])),
+                ];
             }
         }
 
         // Prepare variable for templates
-        $linkTarget = ($this->getConfig('NewWindow')) ? 'target="_blank" ' : '';
+        $linkTarget = (self::getConfig('NewWindow')) ? 'target="_blank" rel="noopener" ' : '';
 
         // Display additional code
-        if ($this->getConfig('CodeStatus'))
+        if (self::getConfig('CodeStatus'))
         {
             echo $templates->get("relatedThreads_code");
         }
@@ -277,7 +272,8 @@ class relatedThreads
         $relatedThreads['list'] = '';
         foreach ($threadsList as $thread)
         {
-            if ($this->getConfig('ForumGet'))
+            $relatedThreads['element'] = '';
+            if (self::getConfig('ForumGet') && isset($forumsList[$thread['fid']]))
             {
                 $forum['link'] = $forumsList[$thread['fid']]['link'];
                 $forum['name'] = $forumsList[$thread['fid']]['name'];
@@ -300,15 +296,14 @@ class relatedThreads
      * @param string String to analyze
      * @return array Table with keywords.
      */
-    private function getKeywords($string)
+    private static function getKeywords($string)
     {
         $string = preg_replace('#\s+#i', ' ', $string);
 
         $keywords = explode(' ', $string);
         $keywords = array_map('trim', $keywords);
-        $keywords = array_filter($keywords, array($this, 'checkKeywords'));
+        $keywords = array_filter($keywords, ['relatedThreads', 'checkKeywords']);
         $keywords = array_unique($keywords);
-        shuffle($keywords);
 
         return $keywords;
     }
@@ -318,10 +313,11 @@ class relatedThreads
      * 
      * @return bool False if there keyword is too short.
      */
-    private function checkKeywords($val)
+    private static function checkKeywords($val)
     {
-        $badWords = explode(',', $this->getConfig('BadWords'));
-        if (my_strlen($val) >= $this->getConfig('Length') && !in_array($val, $badWords))
+        $badWords = explode(',', self::getConfig('BadWords'));
+        $badWords = array_map('trim', $badWords);
+        if (my_strlen($val) >= self::getPositiveIntConfig('Length', 4, 1, 85) && !in_array($val, $badWords))
         {
             return true;
         }
@@ -331,9 +327,9 @@ class relatedThreads
     /**
      * Get standard SQL WHERE statement - closed and moved threads are not allowed
      */
-    private function getStandardWhere()
+    private static function getStandardWhere()
     {
-        $this->where .= "visible = 1 AND closed NOT LIKE 'moved|%'";
+        self::$where .= "t.visible = 1 AND t.closed NOT LIKE 'moved|%'";
     }
 
     /**
@@ -341,17 +337,15 @@ class relatedThreads
      * 
      * @return string	- query part.
      */
-    private function getTimeLimit()
+    private static function getTimeLimit()
     {
-        global $mybb;
-
-        $timeLimit = (int) $this->getConfig('TimeLimit');
-        if (!$this->getConfig('LimitSelect') || $timeLimit < 1)
+        $timeLimit = (int) self::getConfig('TimeLimit');
+        if (self::getConfig('TimeLimitSelect') === '0' || $timeLimit < 1)
         {
             return;
         }
 
-        switch ($this->getConfig('TimeLimitSelect'))
+        switch (self::getConfig('TimeLimitSelect'))
         {
             case 'h':
             default:
@@ -377,51 +371,52 @@ class relatedThreads
 
         $timeLimit = TIME_NOW - $timeLimit;
 
-        if ($this->getConfig('TimeLimitMethodDesc') == 'firstPost')
+        if (self::getConfig('TimeLimitMethod') == 'firstPost')
         {
-            $this->where .= " AND dateline > " . $timeLimit . " ";
+            self::$where .= " AND t.dateline > " . $timeLimit . " ";
         }
         else
         {
-            $this->where .= " AND lastpost > " . $timeLimit . " ";
+            self::$where .= " AND t.lastpost > " . $timeLimit . " ";
         }
     }
 
     /**
      * Additional function to check if script should search threads on the same forum.
      */
-    private function getForumCheck()
+    private static function getForumCheck()
     {
         global $mybb;
 
-        if (!$this->getConfig('ForumOnly'))
+        if (!self::getConfig('ForumOnly'))
         {
             return;
         }
 
-        $actualFid = (int) $mybb->input['fid'];
+        $actualFid = $mybb->get_input('fid', MyBB::INPUT_INT);
         if ($actualFid > 0)
         {
-            $this->where .= " AND fid = '{$actualFid}' ";
+            self::$where .= " AND t.fid = '{$actualFid}' ";
         }
     }
 
     /**
      * Get all forums exceptions to SQL WHERE statement
      */
-    private function getExceptions()
+    private static function getExceptions()
     {
-        if ($this->getConfig('Exceptions') == '')
+        if (self::getConfig('Exceptions') == '')
         {
             return;
         }
 
-        $exceptions_list = explode(',', $this->getConfig('Exceptions'));
+        $exceptions_list = explode(',', self::getConfig('Exceptions'));
         $exceptions_list = array_map('intval', $exceptions_list);
+        $exceptions_list = array_filter($exceptions_list);
 
-        if (sizeof($exceptions_list) > 0)
+        if (count($exceptions_list) > 0)
         {
-            $this->where .= " AND fid NOT IN (" . implode(',', $exceptions_list) . ")";
+            self::$where .= " AND t.fid NOT IN (" . implode(',', $exceptions_list) . ")";
         }
     }
 
@@ -432,169 +427,57 @@ class relatedThreads
      * @param int First rotation or not (leave at default)
      * @return return a CSV list of forums the user cannot search
      */
-    private function getUnsearchableForums($pid="0", $first=1)
+    private static function getUnsearchableForums()
     {
-        global $db, $forum_cache, $permissioncache, $mybb, $unsearchableforums, $unsearchable, $templates, $forumpass;
-
-        $pid = intval($pid);
-
-        if (!is_array($forum_cache))
+        if (!function_exists('get_unsearchable_forums'))
         {
-            // Get Forums
-            $query = $db->simple_select("forums", "fid,parentlist,password,active", '', array('order_by' => 'pid, disporder'));
-            while ($forum = $db->fetch_array($query))
-            {
-                $forum_cache[$forum['fid']] = $forum;
-            }
-        }
-        if (!is_array($permissioncache))
-        {
-            $permissioncache = forum_permissions();
-        }
-        foreach ($forum_cache as $fid => $forum)
-        {
-            if ($permissioncache[$forum['fid']])
-            {
-                $perms = $permissioncache[$forum['fid']];
-            }
-            else
-            {
-                $perms = $mybb->usergroup;
-            }
-
-            $pwverified = 1;
-            if ($forum['password'] != '')
-            {
-                if ($mybb->cookies['forumpass'][$forum['fid']] != md5($mybb->user['uid'] . $forum['password']))
-                {
-                    $pwverified = 0;
-                }
-            }
-
-            $parents = explode(",", $forum['parentlist']);
-            if (is_array($parents))
-            {
-                foreach ($parents as $parent)
-                {
-                    if ($forum_cache[$parent]['active'] == 0)
-                    {
-                        $forum['active'] = 0;
-                    }
-                }
-            }
-
-            if ($perms['canview'] != 1 || $perms['cansearch'] != 1 || $pwverified == 0 || $forum['active'] == 0)
-            {
-                if ($unsearchableforums)
-                {
-                    $unsearchableforums .= ",";
-                }
-                $unsearchableforums .= "'{$forum['fid']}'";
-            }
-        }
-        $unsearchable = $unsearchableforums;
-
-        // Get our unsearchable password protected forums
-        $pass_protected_forums = $this->getPasswordProtectedForums();
-
-        if ($unsearchable && $pass_protected_forums)
-        {
-            $unsearchable .= ",";
+            require_once MYBB_ROOT . 'inc/functions_search.php';
         }
 
-        if ($pass_protected_forums)
-        {
-            $unsearchable .= implode(",", $pass_protected_forums);
-        }
+        global $permissioncache, $unsearchableforums;
+        $permissioncache = $unsearchableforums = false;
 
+        $unsearchable = get_unsearchable_forums();
         if ($unsearchable)
         {
-            $this->where .= " AND fid NOT IN ($unsearchable)";
+            self::$where .= " AND t.fid NOT IN ($unsearchable)";
         }
-    }
-
-    /**
-     * Build a array list of the forums this user cannot search due to password protection
-     *
-     * @param int the fids to check (leave null to check all forums)
-     * @return return a array list of password protected forums the user cannot search
-     */
-    private function getPasswordProtectedForums($fids=array())
-    {
-        global $forum_cache, $mybb;
-
-        if (!is_array($fids))
-        {
-            return false;
-        }
-
-        if (!is_array($forum_cache))
-        {
-            $forum_cache = cache_forums();
-            if (!$forum_cache)
-            {
-                return false;
-            }
-        }
-
-        if (empty($fids))
-        {
-            $fids = array_keys($forum_cache);
-        }
-
-        $pass_fids = array();
-        foreach ($fids as $fid)
-        {
-            if (empty($forum_cache[$fid]['password']))
-            {
-                continue;
-            }
-
-            if (md5($mybb->user['uid'] . $forum_cache[$fid]['password']) != $mybb->cookies['forumpass'][$fid])
-            {
-                $pass_fids[] = $fid;
-                $child_list = get_child_list($fid);
-            }
-
-            if (is_array($child_list))
-            {
-                $pass_fids = array_merge($pass_fids, $child_list);
-            }
-        }
-        return array_unique($pass_fids);
     }
 
     /**
      * Get all forums premissions to SQL WHERE statement
      */
-    private function getPermissions()
+    private static function getPermissions()
     {
-        $onlyusfids = array();
+        global $mybb;
+
+        $onlyusfids = [];
 
         // Check group permissions if we can't view threads not started by us
         $group_permissions = forum_permissions();
         foreach ($group_permissions as $fid => $forum_permissions)
         {
-            if ($forum_permissions['canonlyviewownthreads'] == 1)
+            if (!empty($forum_permissions['canonlyviewownthreads']))
             {
-                $onlyusfids[] = $fid;
+                $onlyusfids[] = (int)$fid;
             }
         }
         if (!empty($onlyusfids))
         {
-            $this->where .= " AND ((fid IN(" . implode(',', $onlyusfids) . ") AND uid='{$mybb->user['uid']}') OR fid NOT IN(" . implode(',', $onlyusfids) . "))";
+            $uid = (int)$mybb->user['uid'];
+            self::$where .= " AND ((t.fid IN(" . implode(',', $onlyusfids) . ") AND t.uid='{$uid}') OR t.fid NOT IN(" . implode(',', $onlyusfids) . "))";
         }
     }
 
     /**
      * Get all inactive forums
      */
-    private function getInactiveForums()
+    private static function getInactiveForums()
     {
         $inactiveforums = get_inactive_forums();
         if ($inactiveforums)
         {
-            $this->where .= " AND fid NOT IN ($inactiveforums)";
+            self::$where .= " AND t.fid NOT IN ($inactiveforums)";
         }
     }
 
@@ -604,50 +487,36 @@ class relatedThreads
      * @param string $name Name of config to get
      * @return string Data config from MyBB Settings
      */
-    private function getConfig($name)
+    private static function getConfig($name)
     {
         global $mybb;
 
-        return $mybb->settings["relatedThreads{$name}"];
+        $setting = "relatedThreads{$name}";
+        if (isset($mybb->settings[$setting]))
+        {
+            return $mybb->settings[$setting];
+        }
+
+        return isset(self::$defaults[$name]) ? self::$defaults[$name] : '';
     }
 
     /**
-     * Helper function to set variable in config
-     * 
-     * @param string $name Name of config to set
-     * @param string $val Value of config to get
+     * Helper function to get a bounded positive integer setting.
      */
-    private function setConfig($name, $val)
+    private static function getPositiveIntConfig($name, $default, $min, $max)
     {
-        global $db;
+        $value = (int)self::getConfig($name);
 
-        $name = (string) $name;
-        $val = (string) $val;
-
-        if (empty($name) || empty($val))
+        if ($value < $min)
         {
-            return;
+            $value = $default;
+        }
+        if ($value > $max)
+        {
+            $value = $max;
         }
 
-        $db->update_query("settings", array("value" => $db->escape_string($val)), "name = 'relatedThreads" . $db->escape_string($name) . "'");
-        rebuild_settings();
-    }
-    
-    /**
-     * Say thanks to plugin author - paste link to author website.
-     * Please don't remove this code if you didn't make donate
-     * It's the only way to say thanks without donate :)     
-     */
-    public function pluginThanks(&$content)
-    {
-        global $session, $lukasamd_thanks;
-        
-        if (!isset($lukasamd_thanks) && $session->is_spider)
-        {
-            $thx = '<div style="margin:auto; text-align:center;">This forum uses <a href="http://lukasztkacz.com">Lukasz Tkacz</a> MyBB addons.</div></body>';
-            $content = str_replace('</body>', $thx, $content);
-            $lukasamd_thanks = true;
-        }
+        return $value;
     }
 
 }

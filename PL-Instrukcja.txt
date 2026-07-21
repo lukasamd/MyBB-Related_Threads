@@ -32,6 +32,12 @@ INSTALACJA:
 
 2. Zalogować się jako admin i zainstalować plugin "Powiązane Tematy"  
 
-3. Opcjonalnie zmienić ustawienia w APC -> Konfiguracja -> Powiązane Tematy 
+3. Opcjonalnie zmienić ustawienia w ACP -> Konfiguracja -> Powiązane Tematy
 
-4. Dla zwiększenia wydajności zalezny jest tryb szukania pełnotekstowego
+4. Dla zwiększenia wydajności zalecany jest tryb szukania pełnotekstowego
+
+AKTUALIZACJA Z 1.x:
+
+Wersja 2.x naprawia zgłoszony XSS w tytule tematu i usuwa stary kod niezgodny
+z PHP 8. Dezaktywuj i aktywuj plugin, aby odświeżyć zmodyfikowany szablon
+tworzenia nowego tematu.
